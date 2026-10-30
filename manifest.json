@@ -1,0 +1,173 @@
+[
+  {
+    "id": "task_01_pagination",
+    "title": "Defensive pagination normalization",
+    "contract": "Implement normalize_pagination(page, page_size, max_page_size=100) -> tuple[int, int, int]. Return (normalized_page, normalized_page_size, offset). page must be an integer >= 1; otherwise use 1. page_size must be an integer >= 1; otherwise use 20. Clamp page_size to max_page_size. Treat bool as invalid even though bool subclasses int. offset=(page-1)*page_size.",
+    "gap": "Models often implement pagination arithmetic but miss malformed, negative, boolean, and oversized inputs.",
+    "diagnosis_keywords": [
+      "bool",
+      "positive",
+      "clamp",
+      "cap",
+      "offset"
+    ],
+    "starter_file": "tasks/task_01_pagination/starter.py",
+    "reference_file": "tasks/task_01_pagination/reference_solution.py",
+    "tests_file": "tasks/task_01_pagination/test_contract.py",
+    "prompt_file": "tasks/task_01_pagination/prompt.md"
+  },
+  {
+    "id": "task_02_bearer",
+    "title": "Robust bearer-token extraction",
+    "contract": "Implement extract_bearer_token(authorization) -> str | None. Accept a string with exactly two whitespace-separated parts; scheme comparison is case-insensitive and must be Bearer; token must be non-empty and contain no whitespace. Return token or None. Do not raise for non-string inputs.",
+    "gap": "Models frequently write permissive header parsing that accepts malformed schemes, whitespace, or empty credentials.",
+    "diagnosis_keywords": [
+      "case-insensitive",
+      "scheme",
+      "exactly two",
+      "whitespace",
+      "None"
+    ],
+    "starter_file": "tasks/task_02_bearer/starter.py",
+    "reference_file": "tasks/task_02_bearer/reference_solution.py",
+    "tests_file": "tasks/task_02_bearer/test_contract.py",
+    "prompt_file": "tasks/task_02_bearer/prompt.md"
+  },
+  {
+    "id": "task_03_authorization",
+    "title": "Fail-closed resource authorization",
+    "contract": "Implement can_access(user, resource) -> bool. user/resource are mappings. Deny if either is missing/malformed. Allow role='admin'. Otherwise allow only when user.id and resource.owner_id are both present, non-None, and equal. Never infer access from a missing owner.",
+    "gap": "Models often confuse authentication with authorization and accidentally grant access when ownership metadata is missing.",
+    "diagnosis_keywords": [
+      "fail-closed",
+      "missing",
+      "owner_id",
+      "admin",
+      "deny"
+    ],
+    "starter_file": "tasks/task_03_authorization/starter.py",
+    "reference_file": "tasks/task_03_authorization/reference_solution.py",
+    "tests_file": "tasks/task_03_authorization/test_contract.py",
+    "prompt_file": "tasks/task_03_authorization/prompt.md"
+  },
+  {
+    "id": "task_04_retry",
+    "title": "Retry only transient failures",
+    "contract": "Implement call_with_retry(operation, retry_on, max_attempts, sleep). max_attempts includes the first call and must be >=1. Retry only exceptions that are instances of retry_on. Call sleep(delay) before each retry, with delays 0.1, 0.2, 0.4... seconds. Return the operation result. Re-raise the final exception unchanged. Invalid max_attempts raises ValueError.",
+    "gap": "Models often retry every exception, causing repeated side effects for permanent errors, or mishandle attempt counts.",
+    "diagnosis_keywords": [
+      "transient",
+      "permanent",
+      "max_attempts",
+      "exponential",
+      "re-raise"
+    ],
+    "starter_file": "tasks/task_04_retry/starter.py",
+    "reference_file": "tasks/task_04_retry/reference_solution.py",
+    "tests_file": "tasks/task_04_retry/test_contract.py",
+    "prompt_file": "tasks/task_04_retry/prompt.md"
+  },
+  {
+    "id": "task_05_hmac",
+    "title": "Webhook signature verification",
+    "contract": "Implement verify_webhook_signature(raw_body, supplied_hex, secret) -> bool. Compute HMAC-SHA256 over the exact raw_body bytes using secret encoded as UTF-8 if it is a string. supplied_hex may optionally start with 'sha256='. Compare digest using hmac.compare_digest. Return False for wrong types, malformed hex, or any mismatch. Do not parse/re-serialize JSON.",
+    "gap": "Models may verify a transformed payload, use ordinary string comparison, or mishandle malformed signatures.",
+    "diagnosis_keywords": [
+      "HMAC",
+      "raw_body",
+      "compare_digest",
+      "sha256",
+      "constant-time"
+    ],
+    "starter_file": "tasks/task_05_hmac/starter.py",
+    "reference_file": "tasks/task_05_hmac/reference_solution.py",
+    "tests_file": "tasks/task_05_hmac/test_contract.py",
+    "prompt_file": "tasks/task_05_hmac/prompt.md"
+  },
+  {
+    "id": "task_06_cache",
+    "title": "TTL cache expiration semantics",
+    "contract": "Implement TTLCache(clock). set(key,value,ttl_seconds) stores an entry expiring at clock()+ttl; ttl must be >0 or raise ValueError. get(key, default=None) returns default when absent or expired. An entry is expired when clock() >= expiry. Use the injected clock and do not depend on time.time().",
+    "gap": "Models often use wall-clock time or expire entries at the wrong boundary, causing stale cache reads.",
+    "diagnosis_keywords": [
+      "injected clock",
+      "exact expiry",
+      "greater than or equal",
+      "TTL",
+      "monotonic"
+    ],
+    "starter_file": "tasks/task_06_cache/starter.py",
+    "reference_file": "tasks/task_06_cache/reference_solution.py",
+    "tests_file": "tasks/task_06_cache/test_contract.py",
+    "prompt_file": "tasks/task_06_cache/prompt.md"
+  },
+  {
+    "id": "task_07_transfer",
+    "title": "Atomic account transfer",
+    "contract": "Implement transfer(conn, source_id, destination_id, amount). The SQLite connection has accounts(id TEXT PRIMARY KEY, balance INTEGER NOT NULL). Require amount to be a positive integer (bool invalid), distinct accounts, and both accounts to exist. Debit and credit must be atomic. Raise ValueError for invalid amount/same account, KeyError for missing account, and ValueError for insufficient funds. On any failure, balances must remain unchanged. Do not commit unrelated caller work; use a SAVEPOINT.",
+    "gap": "Models often perform debit and credit as separate writes, allowing partial transfers when the destination update fails.",
+    "diagnosis_keywords": [
+      "atomic",
+      "SAVEPOINT",
+      "rollback",
+      "bool",
+      "commit"
+    ],
+    "starter_file": "tasks/task_07_transfer/starter.py",
+    "reference_file": "tasks/task_07_transfer/reference_solution.py",
+    "tests_file": "tasks/task_07_transfer/test_contract.py",
+    "prompt_file": "tasks/task_07_transfer/prompt.md"
+  },
+  {
+    "id": "task_08_async",
+    "title": "Bounded async fan-out with stable ordering",
+    "contract": "Implement async_map_bounded(items, worker, limit). Run worker(item) concurrently with at most limit calls in flight. Return results in the same order as items, not completion order. Empty input returns []. limit must be a positive integer; bool invalid. If a worker raises, propagate the exception and cancel outstanding work before returning.",
+    "gap": "Models often use gather without concurrency limits, or accidentally return completion order instead of input order.",
+    "diagnosis_keywords": [
+      "semaphore",
+      "bounded",
+      "input order",
+      "cancel",
+      "propagate"
+    ],
+    "starter_file": "tasks/task_08_async/starter.py",
+    "reference_file": "tasks/task_08_async/reference_solution.py",
+    "tests_file": "tasks/task_08_async/test_contract.py",
+    "prompt_file": "tasks/task_08_async/prompt.md"
+  },
+  {
+    "id": "task_09_error_mapping",
+    "title": "Safe HTTP error mapping",
+    "contract": "Implement to_http_error(exc) -> tuple[int, dict]. Map ValueError to (400, {'error':'bad_request'}), PermissionError to (403, {'error':'forbidden'}), LookupError to (404, {'error':'not_found'}), and all other Exception instances to (500, {'error':'internal_error'}). Do not expose exception text. More specific classes listed above take precedence naturally. Non-Exception BaseException should be re-raised.",
+    "gap": "Models often leak exception messages or map all exceptions to success/server errors without distinguishing expected client failures.",
+    "diagnosis_keywords": [
+      "400",
+      "403",
+      "404",
+      "500",
+      "does not expose",
+      "internal_error"
+    ],
+    "starter_file": "tasks/task_09_error_mapping/starter.py",
+    "reference_file": "tasks/task_09_error_mapping/reference_solution.py",
+    "tests_file": "tasks/task_09_error_mapping/test_contract.py",
+    "prompt_file": "tasks/task_09_error_mapping/prompt.md"
+  },
+  {
+    "id": "task_10_idempotency",
+    "title": "Idempotent request result store",
+    "contract": "Implement IdempotencyStore with execute(key, request_fingerprint, operation). First call for a key executes operation once and stores its result. Repeating the same key and fingerprint returns the stored result without executing again. Reusing a key with a different fingerprint raises ValueError. Empty/non-string key or fingerprint raises ValueError. If operation raises, do not cache the failure; a later call may retry. This class is single-process and does not claim cross-process concurrency safety.",
+    "gap": "Models often treat a key as sufficient without binding it to request identity, enabling accidental replay of a different operation.",
+    "diagnosis_keywords": [
+      "fingerprint",
+      "same key",
+      "different request",
+      "failure",
+      "not cached"
+    ],
+    "starter_file": "tasks/task_10_idempotency/starter.py",
+    "reference_file": "tasks/task_10_idempotency/reference_solution.py",
+    "tests_file": "tasks/task_10_idempotency/test_contract.py",
+    "prompt_file": "tasks/task_10_idempotency/prompt.md"
+  }
+]
